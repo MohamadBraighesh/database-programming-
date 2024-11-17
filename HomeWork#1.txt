@@ -1,0 +1,118 @@
+question .1)
+
+--CREATE DATABASE EMPLOYEES
+
+
+/*
+CREATE TABLE employee (
+    ID INT PRIMARY KEY, 
+    person_name VARCHAR2(100) NOT NULL,
+    street VARCHAR2(100),
+    city VARCHAR2(50)
+);
+*/
+
+
+/*
+CREATE TABLE company (
+    company_name VARCHAR(100) PRIMARY KEY, 
+    city VARCHAR(50)
+);
+
+*/
+/*
+CREATE TABLE works (
+    ID INT, -- Foreign key referencing employee
+    company_name VARCHAR(100), -- Foreign key referencing company
+    salary DECIMAL(10, 2),
+    PRIMARY KEY (ID, company_name), -- Composite primary key 
+    FOREIGN KEY (ID) REFERENCES employee(ID) ON DELETE CASCADE, 
+    FOREIGN KEY (company_name) REFERENCES company(company_name) ON DELETE CASCADE 
+);
+
+*/
+/*
+CREATE TABLE manages (
+    ID INT, 
+    manager_id INT, -- Employee who is the manager
+    PRIMARY KEY (ID, manager_id), 
+    FOREIGN KEY (ID) REFERENCES employee(ID) ON DELETE CASCADE, 
+    FOREIGN KEY (manager_id) REFERENCES employee(ID) ON DELETE  CASCADE
+);
+
+*/
+
+
+
+question.2)
+
+A)
+
+SELECT DISTINCT depositor.ID
+FROM depositor
+WHERE depositor.ID NOT IN (
+    SELECT borrower.ID
+    FROM borrower
+);
+
+B)
+
+SELECT ID
+FROM customer
+WHERE customer_street = (
+    SELECT customer_street
+    FROM customer
+    WHERE ID = 12345
+)
+AND customer_city = (
+    SELECT customer_city
+    FROM customer
+    WHERE ID = 12345
+)
+AND ID != 12345;
+
+
+C)
+
+SELECT DISTINCT branch.branch_name
+FROM branch
+JOIN account ON branch.branch_name = account.branch_name
+JOIN depositor ON account.account_number = depositor.account_number
+JOIN customer ON depositor.ID = customer.ID
+WHERE customer.customer_city = 'Harrison';
+
+
+
+question.3)
+
+A)
+
+SELECT 
+    day, 
+    qty, 
+    SUM(qty) OVER (ORDER BY day) AS cumQty
+FROM 
+    demand;
+
+B)
+
+WITH RankedData AS (
+    SELECT 
+        product, 
+        day, 
+        qty, 
+        ROW_NUMBER() OVER (PARTITION BY product ORDER BY qty ASC) AS RN
+    FROM 
+        sales 
+)
+SELECT 
+    product, 
+    day, 
+    qty, 
+    RN
+FROM 
+    RankedData
+WHERE 
+    RN <= 2
+ORDER BY 
+    product, RN;
